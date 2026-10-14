@@ -1,25 +1,25 @@
-# Geolocation Headers
+## GTG - Geolocation Headers
 
-## GTG
-
-Para funcionamento correto do GTG, devemos fornecer a geolocalização do usuário utilizando headers. Existem 2 formas (prefiro a primeira):
+Para funcionamento correto do GTG, devemos fornecer a geolocalização do usuário utilizando headers:
 
 
 ```
 X-Forwarded-Country = "BR"
 X-Forwarded-Region = "SP"
-X-Forwarded-Geolocation = "latlong={latitude},{longitude}; city={cidade}"
+# ou X-Forwarded-CountryRegion="BR-SP" no lugar das 2 acima
+
+X-Forwarded-Geolocation = "latlong={latitude},{longitude};city={cidade}" # ex: "latlong=-23.6007,-46.9212;city=Cotia"
 ```
 
-or
+## GTG - Control Headers
 
 ```
-X-Forwarded-CountryRegion = "BR-SP"
-X-Forwarded-Geolocation = "latlong={latitude},{longitude};city={cidade}"
+X-Gtg-Implementation = "Snippet" (usar para Cloudflare Snippet)
+X-Gtg-Tag-Id = "GTM-123123" ou "G-13123123" (permite usar apenas "fps.goog")
+X-Forwarded-For = <Browser IP>
 ```
 
-
-## sGTM
+## sGTM - Region-specific behavior Headers
 
 [Enable region-specific behavior for tags](https://developers.google.com/tag-platform/tag-manager/server-side/enable-region-specific-settings)
 
@@ -40,7 +40,7 @@ Os servidores GTG e sGTM servem os seguintes tipos de recursos:
 - scripts/containeres GTM e GTAG
 - rotas de saúde
 - service worker
-- iframe (somente para sGTM) - relacionado com o service worker
+- iframe relacionado com o SW (somente sGTM)
 - eventos (GA4, web-to-server, etc)
 - telemetria
 
@@ -70,5 +70,7 @@ Detalhamento dos tipos de recursos e seus respectivos headers `Cache-Control`:
 | [eventos](https://gtmss.louren.co.in/sgtm/g/collect?v=2&tid=G-4Z970YCHQZ&gtm=45g92e6992v9182072196za20kzb72289496zd72289496xf4&_p=1789121397005&gcs=G1--&gcd=13l3l3R3l5l1&npa=0&dma=0&gdid=dY2Q5Yz.dNzQzZD&ecid=1355173377&_eu=AEAAAGQ&ae=a&cid=1229109332.1783663376&ec_mode=c&frm=0&pscdl=noapi&rcb=1&sr=3840x2160&uaa=arm&uab=64&uafvl=Google%2520Chrome%3B153.0.8010.37%7CNot_A%2520Brand%3B8.0.0.0%7CChromium%3B153.0.8010.37&uam=&uamb=0&uap=macOS&uapv=26.6.2&uaw=0&ul=en-us&ur=BR-SP&sst.rnd=126866843.1789121398&sst.etld=google.com.br&sst.tft=1789121397005&sst.sp=1&sst.em_event=1&sst.lpc=139756513&sst.navt=n&sst.ude=1&sst.sw_exp=1&gaf=2&_s=2&tag_exp=115938465~115938468~118897920~118897930~120213116~120385422~120469145~120469153~120474863~120912439&dr=https%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fgtg-cloudflare-worker.html%3Fserver_container_url%3Dhttps%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fsgtm%26disable_media&dl=https%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fgtg-cloudflare-worker.html%3Fserver_container_url%3Dhttps%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fsgtm%26disable_media&sid=1789121396&sct=248&seg=1&dt=Cloudflare+Worker+-+GTG+%2B+sGTM&_tu=RA&en=scroll&gap.sstd=1&gap.gtb=2&ep.tag_name=All+Pages+-+Load+-+GA4+Google+Tag&ep.custom_timestamp=REDACTED&ep.custom_page_referrer=https%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fgtg-cloudflare-worker.html%3Fserver_container_url%3Dhttps%3A%2F%2Fcloudflare-worker.lcrespilh.us%2Fsgtm%26disable_media&ep.navigation_type=NAVIGATE&ep.document_visibility_state=visible&ep.document_has_focus=true&ep.is_in_iframe=false&ep.pageshow=false&epn.random=81025922&epn.percent_scrolled=90&_et=6&ep.user_data._tag_mode=CODE&up.custom_client_id=GA1.1.1229109332.1783663376&up.is_bot=false&tfd=1659&richsstsse) | no-cache | ✅ | Perfeito. |
 
 Com a finalidade de permitir cache dos scripts servidos pelo GTG, devemos modificar o header `Cache-Control` na camada de CDN. Dessa forma os scripts de containers (GTMs e GTAGs) ficam armazenados no cache da CDN e do browser do usuário final.
+
+Nota: não modificamos os headers do sGTM porque os scripts/containers são servidor pelo GTG, e não pelo sGTM.
 
 Regex que dá match somente com os scripts/containers quando servidos pelo GTG ou sGTM: `/\/(gtg|sgtm)\/(?!healthy)[a-zA-Z0-9-_]*$/`

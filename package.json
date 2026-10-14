@@ -9,9 +9,9 @@
 		"observability-tail-json": "wrangler tail --format json"
 	},
 	"devDependencies": {
-		"@types/node": "^26.1.1",
+		"@types/node": "^26.6.5",
 		"typescript": "^7.0.2",
-		"wrangler": "^4.131.0"
+		"wrangler": "^4.151.0"
 	},
 	"allowScripts": {
 		"sharp": true,

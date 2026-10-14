@@ -28,7 +28,7 @@ export default {
 			})
 		}
 
-		const upstreamRequest: Request = buildUpstreamRequest(request)
+		const upstreamRequest: Request = buildUpstreamSubRequest(request)
 		const edgeCacheOptions = resolveEdgeCacheOptions(request)
 		const response = await fetch(upstreamRequest, { cf: edgeCacheOptions })
 
@@ -61,12 +61,12 @@ function resolveEdgeCacheOptions(request: Request): RequestInitCfProperties {
 }
 
 /**
- * Constrói a requisição upstream reescrevendo o hostname de destino e enriquecendo-a
+ * Constrói a sub-requisição upstream reescrevendo o hostname de destino e enriquecendo-a
  * com os cabeçalhos de geolocalização (`X-Forwarded-*` / `X-Gclb-*`) providos pela Cloudflare.
  *
  * @param {Request<unknown, IncomingRequestCfProperties<unknown>>} request - Requisição original
  */
-function buildUpstreamRequest(request: Request<unknown, IncomingRequestCfProperties<unknown>>) {
+function buildUpstreamSubRequest(request: Request<unknown, IncomingRequestCfProperties<unknown>>) {
 	const requestUrl = new URL(request.url)
 	const requestPathname = requestUrl.pathname
 	// Reescreve o upstream de destino
@@ -78,7 +78,7 @@ function buildUpstreamRequest(request: Request<unknown, IncomingRequestCfPropert
 	const cfRegion = newRequest.cf?.regionCode
 	const cfLatitude = newRequest.cf?.latitude
 	const cfLongitude = newRequest.cf?.longitude
-	const cfCity = newRequest.cf?.city?.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	const cfCity = newRequest.cf?.city?.normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos. Ex: "São Paulo" -> "Sao Paulo"
 	// Enriquece com cabeçalhos de geolocalização
 	if (cfCountry) {
 		newRequest.headers.set('X-Forwarded-Country', cfCountry) // Ex: "BR"
