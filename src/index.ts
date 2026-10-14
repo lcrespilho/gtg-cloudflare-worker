@@ -38,6 +38,10 @@ export default {
 			// para "public, max-age=900".
 			const newResponse = new Response(response.body, response)
 			newResponse.headers.set('Cache-Control', `public, max-age=${edgeCacheOptions.cacheTtl}`)
+			newResponse.headers.set(
+				'X-Debug-Geolocation',
+				`latlong=${request.cf?.latitude},${request.cf?.longitude};city=${request.cf?.city?.normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`,
+			)
 			return newResponse
 		} else {
 			return response
